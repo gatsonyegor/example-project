@@ -42,6 +42,14 @@ services:
       - '@App\Services\Helpers'
     tags:
       - 'controller.service_arguments'
+
+  App\Services\TelegramBotService:
+    arguments:
+      - '%env(TELEGRAM_BOT_TOKEN)%'
+      - '%env(TELEGRAM_GROUP_ID)%'
+      - '@eight_points_guzzle.client.custom_client'
+      - '@App\Services\Helpers'
+
   App\Services\NewsDownloader:
     arguments:
     - '%env(NEWS_API_KEY)%'
