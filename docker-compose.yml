@@ -1,0 +1,44 @@
+services:
+  nginx:
+    image: nginx:1.27
+    container_name: ${PROJECT_NAME}-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/.output/public:/var/www/
+    depends_on:
+      - php
+      - node
+
+  php:
+    build:
+      dockerfile: docker/php/Dockerfile
+    container_name: ${PROJECT_NAME}-php
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend/:/app
+
+  node:
+    build:
+      dockerfile: docker/node/Dockerfile
+    container_name: ${PROJECT_NAME}-node
+ 
+  mysql:
+    image: mysql:9
+    container_name: ${PROJECT_NAME}-mysql
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+volumes:
+  mysql-data:
+    driver: local
+
