@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@import 'primeicons/primeicons.css';
+
+:root {
+    --surface-ground: #f1f6f9;
+    --surface-card: #ffffff;
+
+    --content-border-radius: 10px;
+}
+
+body {
+    background: var(--surface-ground)
+}
+
+.card {
+  background: var(--surface-card);
+  padding:2rem;
+  margin-bottom:2rem;
+    box-shadow: var(--p-card-shadow);
+    border-radius: var(--p-card-border-radius);
+}
