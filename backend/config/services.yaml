@@ -24,6 +24,24 @@ services:
     tags:
       - 'controller.service_arguments'
 
+  App\Controller\AuthController:
+    arguments:
+      - '@App\Repository\UserRepository'
+      - '@App\Repository\AuthCodeRepository'
+      - '@Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface'
+      - '@App\Services\TelegramBotService'
+      - '@doctrine.orm.entity_manager'
+      - '@App\Services\Helpers'
+      - '@security.helper'
+    tags:
+      - 'controller.service_arguments'
+
+  App\Controller\UserController:
+    arguments:
+      - '@App\Repository\UserRepository'
+      - '@App\Services\Helpers'
+    tags:
+      - 'controller.service_arguments'
   App\Services\NewsDownloader:
     arguments:
     - '%env(NEWS_API_KEY)%'
@@ -35,5 +53,13 @@ services:
     - '@App\Services\NewsDownloader'
 
   App\Repository\NewsRepository:
+    arguments:
+    - '@Doctrine\Persistence\ManagerRegistry'
+
+  App\Repository\UserRepository:
+    arguments:
+    - '@Doctrine\Persistence\ManagerRegistry'
+
+  App\Repository\AuthCodeRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
