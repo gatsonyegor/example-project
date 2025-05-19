@@ -16,3 +16,24 @@ services:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/Kernel.php'
+
+  App\Controller\NewsController:
+    arguments:
+      - '@App\Repository\NewsRepository'
+      - '@App\Services\Helpers'
+    tags:
+      - 'controller.service_arguments'
+
+  App\Services\NewsDownloader:
+    arguments:
+    - '%env(NEWS_API_KEY)%'
+    - '@eight_points_guzzle.client.custom_client'
+    - '@doctrine.orm.entity_manager'
+
+  App\Command\NewsDownloadCommand:
+    arguments:
+    - '@App\Services\NewsDownloader'
+
+  App\Repository\NewsRepository:
+    arguments:
+    - '@Doctrine\Persistence\ManagerRegistry'
