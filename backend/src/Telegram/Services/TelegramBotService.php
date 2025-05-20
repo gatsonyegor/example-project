@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Telegram\Services;
 
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +12,6 @@ class TelegramBotService
         private string $botToken,
         private string $groupId,
         private Client $client,
-        private Helpers $helpers
     ) {}
 
     public function sendMessage(string $message): bool

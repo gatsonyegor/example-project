@@ -29,10 +29,11 @@ services:
       - '@App\Repository\UserRepository'
       - '@App\Repository\AuthCodeRepository'
       - '@Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface'
-      - '@App\Services\TelegramBotService'
+      - '@App\Telegram\Services\TelegramBotService'
       - '@doctrine.orm.entity_manager'
       - '@App\Services\Helpers'
       - '@security.helper'
+      - '@messenger.bus.default'
     tags:
       - 'controller.service_arguments'
 
@@ -43,7 +44,7 @@ services:
     tags:
       - 'controller.service_arguments'
 
-  App\Services\TelegramBotService:
+  App\Telegram\Services\TelegramBotService:
     arguments:
       - '%env(TELEGRAM_BOT_TOKEN)%'
       - '%env(TELEGRAM_GROUP_ID)%'
@@ -71,3 +72,10 @@ services:
   App\Repository\AuthCodeRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
+
+  App\Telegram\Messages\TelegramNotificationHandler:
+    arguments:
+    - '@App\Telegram\Services\TelegramBotService'
+    - '@logger'
+    tags:
+    - 'messenger.message_handler'
