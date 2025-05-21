@@ -15,4 +15,5 @@ lexik_jwt_authentication:
         cookie:
             enabled: false
         query_parameter:
-            enabled: false
+            enabled: true
+            name: jwt

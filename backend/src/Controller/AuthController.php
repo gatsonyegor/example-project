@@ -11,6 +11,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use App\Repository\UserRepository;
 use App\Telegram\Services\TelegramBotService;
 use App\Entity\User;
+use App\Notifications\Enum\NotificationTypes;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\AuthCodeRepository;
 use App\Services\Helpers;
@@ -18,7 +19,7 @@ use App\Entity\AuthCode;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Messenger\MessageBusInterface;
 use App\Telegram\Messages\TelegramNotification;
-
+use App\Notifications\Events\Notification;
 class AuthController
 {
     public function __construct(
@@ -67,6 +68,13 @@ class AuthController
                 $username,
                 $verificationCode
             ));
+
+            $this->bus->dispatch(new Notification(
+                NotificationTypes::USER_REGISTERED->value,
+                'Новая регистрация',
+                'Пользователь ' . $username . ' зарегистрировался'
+            ));
+
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();
@@ -104,6 +112,12 @@ class AuthController
         $this->em->flush();
 
         $token = $this->jwtManager->create($user);
+
+        $this->bus->dispatch(new Notification(
+            NotificationTypes::USER_VERIFIED->value,
+            'Новая верификация',
+            'Пользователь ' . $username . ' прошел верификацию'
+        ));
 
         return new JsonResponse(['token' => $token]);
     }

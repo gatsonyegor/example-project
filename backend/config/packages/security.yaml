@@ -13,9 +13,9 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         
-        auth:
-            pattern: ^/api/security/validate-token
-            security: false
+        # auth:
+        #     pattern: ^/api/security/validate-token
+        #     security: false
 
         api:
             pattern: ^/api
@@ -35,9 +35,7 @@ security:
 
     access_control:
         - { path: ^/api/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/api/security/validate-token, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-
 when@test:
     security:
         password_hashers:

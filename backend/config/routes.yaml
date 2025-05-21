@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+notifications:
+    resource:
+        path: ../src/Notifications/Controllers/
+        namespace: App\Notifications\Controllers
+    type: attribute

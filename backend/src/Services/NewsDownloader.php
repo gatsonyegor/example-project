@@ -10,6 +10,9 @@ use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\Response;
+use App\Notifications\Enum\NotificationTypes;
+use App\Notifications\Events\Notification;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class NewsDownloader
 {
@@ -26,7 +29,8 @@ class NewsDownloader
     public function __construct(
         private string $newsApiKey,
         private Client $client,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private MessageBusInterface $bus
     ) {}
 
     public function handle()
@@ -71,6 +75,12 @@ class NewsDownloader
             $this->em->persist($news);
             $this->em->flush();
         }
+
+        $this->bus->dispatch(new Notification(
+            NotificationTypes::NEWS_UPDATED->value,
+            'Обновление новостей',
+            'Новости за сутки успешно загружены'
+        ));
     }
 }
 

@@ -17,6 +17,7 @@ services:
       - '../src/Entity/'
       - '../src/Kernel.php'
 
+  # Controllers
   App\Controller\NewsController:
     arguments:
       - '@App\Repository\NewsRepository'
@@ -44,6 +45,25 @@ services:
     tags:
       - 'controller.service_arguments'
 
+  App\Notifications\Controllers\NotificationController:
+    arguments:
+    - '@security.helper'
+    - '@messenger.bus.default'
+    - '@App\Notifications\Services\NotificationService'
+    tags:
+    - 'controller.service_arguments'
+
+  # Services
+  App\Services\NewsDownloader:
+    arguments:
+    - '%env(NEWS_API_KEY)%'
+    - '@eight_points_guzzle.client.custom_client'
+    - '@doctrine.orm.entity_manager'
+    - '@messenger.bus.default'
+  App\Command\NewsDownloadCommand:
+    arguments:
+    - '@App\Services\NewsDownloader'
+
   App\Telegram\Services\TelegramBotService:
     arguments:
       - '%env(TELEGRAM_BOT_TOKEN)%'
@@ -51,16 +71,26 @@ services:
       - '@eight_points_guzzle.client.custom_client'
       - '@App\Services\Helpers'
 
-  App\Services\NewsDownloader:
+  App\Telegram\Messages\TelegramNotificationHandler:
     arguments:
-    - '%env(NEWS_API_KEY)%'
-    - '@eight_points_guzzle.client.custom_client'
+    - '@App\Telegram\Services\TelegramBotService'
+    - '@logger'
+    tags:
+    - 'messenger.message_handler'
+
+  App\Notifications\Events\NotificationHandler:
+    arguments:
+    - '@doctrine.orm.entity_manager'
+    tags:
+    - 'messenger.message_handler'
+
+  App\Notifications\Services\NotificationService:
+    arguments:
+    - '@App\Notifications\Repository\NotificationRepository'
+    - '@security.helper'
     - '@doctrine.orm.entity_manager'
 
-  App\Command\NewsDownloadCommand:
-    arguments:
-    - '@App\Services\NewsDownloader'
-
+  # Repositories
   App\Repository\NewsRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
@@ -72,10 +102,7 @@ services:
   App\Repository\AuthCodeRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
-
-  App\Telegram\Messages\TelegramNotificationHandler:
+  
+  App\Notifications\Repository\NotificationRepository:
     arguments:
-    - '@App\Telegram\Services\TelegramBotService'
-    - '@logger'
-    tags:
-    - 'messenger.message_handler'
+    - '@Doctrine\Persistence\ManagerRegistry'
