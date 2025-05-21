@@ -4,7 +4,7 @@ import {
   useCookie,
 } from "#app";
 
-export default defineNuxtRouteMiddleware(async (to) => {
+export default defineNuxtRouteMiddleware(async (to, from) => {
   const token = useCookie("jwt");
 
   if (!token.value) {
@@ -25,8 +25,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
   );
 
   const data = await response.json();
-
+  
   if (data.code !== undefined && data.code !== 200) {
+    token.value = null;
     return navigateTo("/login");
   }
 
