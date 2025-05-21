@@ -1,12 +1,13 @@
 <template>
-    <Users />
+    <News />
 </template>
 
 <script lang="ts" setup>
-import Users from "~/components/Users.vue"
+import News from "~/components/News.vue"
 
 definePageMeta({
-    title: "Пользователи",
+    title: "Новости",
     // middleware: "auth",
 });
+
 </script>
