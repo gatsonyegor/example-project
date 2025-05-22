@@ -90,6 +90,10 @@ services:
     - '@security.helper'
     - '@doctrine.orm.entity_manager'
 
+  Predis\Client:
+        arguments:
+            - '%env(REDIS_URL)%'
+
   # Repositories
   App\Repository\NewsRepository:
     arguments:
