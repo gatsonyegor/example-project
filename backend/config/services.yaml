@@ -22,6 +22,7 @@ services:
     arguments:
       - '@App\News\Repository\NewsRepository'
       - '@App\Utils\Helpers'
+      - '@Predis\Client'
     tags:
       - 'controller.service_arguments'
 
@@ -41,7 +42,7 @@ services:
   App\User\Controller\UserController:
     arguments:
       - '@App\User\Repository\UserRepository'
-      - '@App\Utils\Helpers'
+      - '@Predis\Client'
     tags:
       - 'controller.service_arguments'
 

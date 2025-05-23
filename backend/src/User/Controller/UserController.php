@@ -6,6 +6,7 @@ namespace App\User\Controller;
 
 use App\User\Entity\User;
 use App\User\Repository\UserRepository;
+use Predis\Client as RedisClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,6 +15,7 @@ class UserController
 {
 	public function __construct(
 		private UserRepository $userRepository,
+		private RedisClient $redis,
 	) {
 	}
 
@@ -36,6 +38,15 @@ class UserController
 		$limit = (int) $request->query->get('limit', 5);
 		$offset = ($page - 1) * $limit;
 
+		$cacheKey = sprintf('users_list_page_%d_limit_%d', $page, $limit);
+
+		if ($this->redis->exists($cacheKey)) {
+			$cachedData = $this->redis->get($cacheKey);
+			if ($cachedData) {
+				return new JsonResponse(json_decode($cachedData, true));
+			}
+		}
+
 		$users = $this->userRepository->findBy([], null, $limit, $offset);
 		$total = $this->userRepository->count();
 
@@ -48,9 +59,13 @@ class UserController
 			];
 		}, $users);
 
-		return new JsonResponse([
+		$response = new JsonResponse([
 			'items' => $data,
 			'total' => $total,
 		]);
+
+		$this->redis->setex($cacheKey, 3600, $response->getContent() ?: '');
+
+		return $response;
 	}
 }
