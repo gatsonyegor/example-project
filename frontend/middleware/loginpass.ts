@@ -2,7 +2,7 @@ import { defineNuxtRouteMiddleware, navigateTo, useCookie } from "#app";
 
 const newsPage = "/news";
 
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to) => {
     if (import.meta.server) return;
 
     const token = useCookie("jwt");
@@ -11,5 +11,8 @@ export default defineNuxtRouteMiddleware(async () => {
         return;
     }
 
-    return navigateTo(newsPage);
+    const isTokenValid = await validateToken(token.value);
+    if (isTokenValid) {
+        return navigateTo(newsPage);
+    }
 });

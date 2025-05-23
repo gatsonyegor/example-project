@@ -21,18 +21,18 @@ doctrine:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
-            App:
+            News:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
-            Notifications:
+                dir: '%kernel.project_dir%/src/News/Entity'
+                prefix: 'App\News\Entity'
+                alias: News
+            Users:
                 type: attribute
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Notifications/Entity'
-                prefix: 'App\Notifications\Entity'
-                alias: Notifications
+                dir: '%kernel.project_dir%/src/User/Entity'
+                prefix: 'App\User\Entity'
+                alias: Users
         controller_resolver:
             auto_mapping: false
 

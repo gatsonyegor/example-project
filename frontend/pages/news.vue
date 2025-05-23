@@ -3,11 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import News from "~/components/News.vue"
+import News from "~/components/News.vue";
 
 definePageMeta({
     title: "Новости",
-    // middleware: "auth",
+    middleware: "auth",
 });
-
 </script>

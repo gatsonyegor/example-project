@@ -5,7 +5,7 @@ security:
     providers:
         users:
             entity:
-                class: App\Entity\User
+                class: App\User\Entity\User
                 property: login
 
     firewalls:
@@ -36,6 +36,7 @@ security:
     access_control:
         - { path: ^/api/auth, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
 when@test:
     security:
         password_hashers:

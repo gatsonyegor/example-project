@@ -1,11 +1,17 @@
-controllers:
+news:
     resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+        path: ../src/News/Controller/
+        namespace: App\News\Controller
+    type: attribute
+
+user:
+    resource:
+        path: ../src/User/Controller/
+        namespace: App\User\Controller
     type: attribute
 
 notifications:
     resource:
-        path: ../src/Notifications/Controllers/
-        namespace: App\Notifications\Controllers
+        path: ../src/Notifications/Controller/
+        namespace: App\Notifications\Controller
     type: attribute

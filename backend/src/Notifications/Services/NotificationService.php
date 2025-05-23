@@ -4,69 +4,60 @@ declare(strict_types=1);
 
 namespace App\Notifications\Services;
 
-use App\Notifications\Repository\NotificationRepository;
-use App\Notifications\Entity\Notification;
-use Symfony\Bundle\SecurityBundle\Security;
-use Doctrine\ORM\EntityManagerInterface;
+use Predis\Client as RedisClient;
 
 class NotificationService
 {
-    private const NOTIFICATION_STREAM_INTERVAL = 5;
+	private const NOTIFICATION_STREAM_INTERVAL = 10000;
 
-    public function __construct(
-        private NotificationRepository $notificationRepository,
-        private Security $security,
-        private EntityManagerInterface $em
-    ) {}
+	public function __construct(
+		private RedisClient $redis,
+	) {
+	}
 
-    public function getStreamedNotificationsCallback(): void
-    {
-        header('Content-Type: text/event-stream');
-        header('Cache-Control: no-cache');
-        header('Connection: keep-alive');
-        header('X-Accel-Buffering: no');
+	public function getStreamedNotificationsCallback(): void
+	{
+		header('Content-Type: text/event-stream');
+		header('Cache-Control: no-cache');
+		header('Connection: keep-alive');
+		header('X-Accel-Buffering: no');
 
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
+		if (ob_get_level()) {
+			ob_end_clean();
+		}
 
-        while (true) {
-            $user = $this->security->getUser();
+		$notificationsRedisSub = $this->redis->pubSubLoop();
+		$notificationsRedisSub->subscribe('global_notificaions');
 
-            if (!$user) {
-                return;
-            }
-            
-            $notifications = $this->notificationRepository->getUnreadNotifications();
-            if (empty($notifications)) {
-                echo "event: ping\n";
-                echo 'data: ' . json_encode(['timestamp' => time()]) . "\n\n";
-                flush();
-                sleep(self::NOTIFICATION_STREAM_INTERVAL);
-                continue;
-            }
+		$isMessagesExist = false;
+		while (true) {
+			foreach ($notificationsRedisSub as $message) {
+				if ('message' !== $message->kind) {
+					continue;
+				}
+				$isMessagesExist = true;
+				echo "event: message\n";
+				echo 'data: '.json_encode($message->payload)."\n\n";
+				flush();
+			}
 
-            echo "event: message\n";
-            echo 'data: ' . json_encode($notifications) . "\n\n";
-            flush();
+			if (!$isMessagesExist) {
+				echo "event: ping\n";
+				echo 'data: '.json_encode(['timestamp' => time()])."\n\n";
+				flush();
+				sleep(self::NOTIFICATION_STREAM_INTERVAL);
+				continue;
+			}
 
-            if (connection_aborted()) {
-                break;
-            }
+			$isMessagesExist = false;
 
-            $this->markAsRead($notifications);
+			if (connection_aborted()) {
+				break;
+			}
 
-            sleep(self::NOTIFICATION_STREAM_INTERVAL);
-        }
-    }
+			sleep(self::NOTIFICATION_STREAM_INTERVAL);
+		}
 
-    /**
-     * @param Notification[] $notifications
-     */
-    public function markAsRead(array $notifications): void
-    {
-        $ids = array_column($notifications, 'id');
-
-        $this->notificationRepository->markAsRead($ids);
-    }
+		$notificationsRedisSub->unsubscribe();
+	}
 }

@@ -18,34 +18,34 @@ services:
       - '../src/Kernel.php'
 
   # Controllers
-  App\Controller\NewsController:
+  App\News\Controller\NewsController:
     arguments:
-      - '@App\Repository\NewsRepository'
-      - '@App\Services\Helpers'
+      - '@App\News\Repository\NewsRepository'
+      - '@App\Utils\Helpers'
     tags:
       - 'controller.service_arguments'
 
-  App\Controller\AuthController:
+  App\User\Controller\AuthController:
     arguments:
-      - '@App\Repository\UserRepository'
-      - '@App\Repository\AuthCodeRepository'
-      - '@Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface'
-      - '@App\Telegram\Services\TelegramBotService'
       - '@doctrine.orm.entity_manager'
-      - '@App\Services\Helpers'
       - '@security.helper'
       - '@messenger.bus.default'
+      - '@App\User\Repository\UserRepository'
+      - '@App\User\Repository\AuthCodeRepository'
+      - '@Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface'
+      - '@App\Telegram\Services\TelegramBotService'
+      - '@App\Utils\Helpers'
     tags:
       - 'controller.service_arguments'
 
-  App\Controller\UserController:
+  App\User\Controller\UserController:
     arguments:
-      - '@App\Repository\UserRepository'
-      - '@App\Services\Helpers'
+      - '@App\User\Repository\UserRepository'
+      - '@App\Utils\Helpers'
     tags:
       - 'controller.service_arguments'
 
-  App\Notifications\Controllers\NotificationController:
+  App\Notifications\Controller\NotificationController:
     arguments:
     - '@security.helper'
     - '@messenger.bus.default'
@@ -54,22 +54,22 @@ services:
     - 'controller.service_arguments'
 
   # Services
-  App\Services\NewsDownloader:
+  App\News\Services\NewsDownloader:
     arguments:
     - '%env(NEWS_API_KEY)%'
     - '@eight_points_guzzle.client.custom_client'
     - '@doctrine.orm.entity_manager'
     - '@messenger.bus.default'
-  App\Command\NewsDownloadCommand:
+  App\News\Command\NewsDownloadCommand:
     arguments:
-    - '@App\Services\NewsDownloader'
+    - '@App\News\Services\NewsDownloader'
 
   App\Telegram\Services\TelegramBotService:
     arguments:
       - '%env(TELEGRAM_BOT_TOKEN)%'
       - '%env(TELEGRAM_GROUP_ID)%'
       - '@eight_points_guzzle.client.custom_client'
-      - '@App\Services\Helpers'
+      - '@App\Utils\Helpers'
 
   App\Telegram\Messages\TelegramNotificationHandler:
     arguments:
@@ -80,30 +80,28 @@ services:
 
   App\Notifications\Events\NotificationHandler:
     arguments:
-    - '@doctrine.orm.entity_manager'
+    - '@Predis\Client'
     tags:
     - 'messenger.message_handler'
 
   App\Notifications\Services\NotificationService:
     arguments:
-    - '@App\Notifications\Repository\NotificationRepository'
-    - '@security.helper'
-    - '@doctrine.orm.entity_manager'
+    - '@Predis\Client'
 
   Predis\Client:
-        arguments:
-            - '%env(REDIS_URL)%'
+    arguments:
+      - '%env(REDIS_URL)%'
 
   # Repositories
-  App\Repository\NewsRepository:
+  App\News\Repository\NewsRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
 
-  App\Repository\UserRepository:
+  App\User\Repository\UserRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
 
-  App\Repository\AuthCodeRepository:
+  App\User\Repository\AuthCodeRepository:
     arguments:
     - '@Doctrine\Persistence\ManagerRegistry'
   

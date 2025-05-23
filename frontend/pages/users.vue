@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import Users from "~/components/Users.vue"
+import Users from "~/components/Users.vue";
 
 definePageMeta({
     title: "Пользователи",
-    // middleware: "auth",
+    middleware: "auth",
 });
 </script>
